@@ -1,0 +1,16 @@
+Metrics/AbcSize:
+  Max: 174.1
+Metrics/BlockNesting:
+  Max: 8
+Metrics/ClassLength:
+  Max: 472
+Metrics/CyclomaticComplexity:
+  Max: 46
+Metrics/LineLength:
+  Max: 120
+Metrics/MethodLength:
+  Max: 116
+Metrics/PerceivedComplexity:
+  Max: 48
+Style/ZeroLengthPredicate:
+  Enabled: false
