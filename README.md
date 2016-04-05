@@ -1,5 +1,7 @@
 # ByteBoozer2
 
+[![Gem Version](https://badge.fury.io/rb/byteboozer2.svg)](https://rubygems.org/gems/byteboozer2)
+
 `ByteBoozer2` package provides a native Ruby port of David Malmborg's [ByteBoozer 2.0](http://csdb.dk/release/?id=145031), a data cruncher for Commodore files written in C.
 
 ## Version
