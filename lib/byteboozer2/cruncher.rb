@@ -640,7 +640,7 @@ module ByteBoozer2
         max_diff = i - @put if i - @put > max_diff
       end
 
-      wbit(1)
+      wbit(1) if need_copy_bit
       wlength(0xff)
       wflush
 
