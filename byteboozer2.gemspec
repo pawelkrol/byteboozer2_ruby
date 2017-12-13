@@ -1,4 +1,3 @@
-# coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'byteboozer2/version'
@@ -19,12 +18,12 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_development_dependency 'awesome_print', '~> 1.6.1'
-  spec.add_development_dependency 'bundler',       '~> 1.11.2'
-  spec.add_development_dependency 'json',          '~> 1.8.3'
-  spec.add_development_dependency 'minitest',      '~> 5.8.4'
-  spec.add_development_dependency 'rake',          '~> 11.1.1'
-  spec.add_development_dependency 'rubocop',       '~> 0.38.0'
+  spec.add_development_dependency 'awesome_print', '~> 1.8.0'
+  spec.add_development_dependency 'bundler',       '~> 1.16.0'
+  spec.add_development_dependency 'json',          '~> 2.1.0'
+  spec.add_development_dependency 'minitest',      '~> 5.10.3'
+  spec.add_development_dependency 'rake',          '~> 12.3.0'
+  spec.add_development_dependency 'rubocop',       '~> 0.52.0'
 
-  spec.add_runtime_dependency 'activemodel', '~> 4.2.6'
+  spec.add_runtime_dependency 'activemodel', '~> 5.1.4'
 end

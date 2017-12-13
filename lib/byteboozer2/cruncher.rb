@@ -155,7 +155,7 @@ module ByteBoozer2
       elsif len >= 128 && len <= 255
         14
       else
-        ByteBoozer2.logger.warn 'cost_of_length got wrong value: #{len}'
+        ByteBoozer2.logger.warn "cost_of_length got wrong value: #{len}"
         10_000
       end
     end
@@ -204,7 +204,7 @@ module ByteBoozer2
         return NUM_BITS_LONG_3 if cond_long_3(offset)
       end
 
-      ByteBoozer2.logger.warn 'cost_of_offset got wrong offset: #{offset}'
+      ByteBoozer2.logger.warn "cost_of_offset got wrong offset: #{offset}"
       10_000
     end
 
@@ -266,14 +266,12 @@ module ByteBoozer2
 
         longest_match = 0
 
-        if @rle_info[get].length == 0 # No RLE-match here...
+        if @rle_info[get].length.zero? # No RLE-match here...
           # Scan until start of file, or max offset
           while get - scn <= MAX_OFFSET && scn > 0 && longest_match < 255
             # OK, we have a match of length 2 or longer, but max 255 or file start
             len = 2
-            while len < 255 && scn >= len && @ibuf[scn - len] == @ibuf[get - len]
-              len += 1
-            end
+            len += 1 while len < 255 && scn >= len && @ibuf[scn - len] == @ibuf[get - len]
 
             # Calc offset
             offset = get - scn
@@ -283,7 +281,7 @@ module ByteBoozer2
               longest_match = len
 
               # Store the match only if first (= best) of this length
-              while len >= 2 && matches[len].length == 0
+              while len >= 2 && matches[len].length.zero?
                 # If len == 2, check against short offset!
                 if len > 2 || (len == 2 && offset <= MAX_OFFSET_SHORT)
                   matches[len].length = len
@@ -345,15 +343,13 @@ module ByteBoozer2
               offset = get - scn + @rle_info[scn].length - rle_len
 
               if offset <= MAX_OFFSET
-                while len < 255 && get >= offset + len && @ibuf[get - offset - len] == @ibuf[get - len]
-                  len += 1
-                end
+                len += 1 while len < 255 && get >= offset + len && @ibuf[get - offset - len] == @ibuf[get - len]
 
                 if len > longest_match
                   longest_match = len
 
                   # Store the match only if first (= best) of this length
-                  while len >= 2 && matches[len].length == 0
+                  while len >= 2 && matches[len].length.zero?
                     # If len == 2, check against short offset!
                     if len > 2 || (len == 2 && offset <= MAX_OFFSET_SHORT)
                       matches[len].length = len
@@ -386,7 +382,7 @@ module ByteBoozer2
           len = matches[i].length
           offset = matches[i].offset
 
-          next if len == 0
+          next if len.zero?
           target_i = get - len + 1
           target = @context[target_i]
 
@@ -408,7 +404,7 @@ module ByteBoozer2
 
         # If literal run is first or cheapest way to get here, then update node
         this = @context[get]
-        if this.cost == 0 || this.cost >= lit_cost
+        if this.cost.zero? || this.cost >= lit_cost
           this.cost = lit_cost
           this.next = get + 1
           this.lit_len = lit_len
@@ -457,19 +453,19 @@ module ByteBoozer2
       while get > 0
         cur = ((cur << 8) | @ibuf[get - 1]) & 0xffff
 
-        if @first[cur] == 0
+        if @first[cur].zero?
           @first[cur] = @last[cur] = get
         else
           @link[@last[cur]] = get
           @last[cur] = get
         end
 
-        get -= @rle_info[get].length == 0 ? 1 : @rle_info[get].length - 1 # if RLE-match...
+        get -= @rle_info[get].length.zero? ? 1 : @rle_info[get].length - 1 # if RLE-match...
       end
     end
 
     def wbit(bit)
-      if @cur_cnt == 0
+      if @cur_cnt.zero?
         @obuf[@cur_index] = @cur_byte
         @cur_index = @put
         @cur_cnt = 8
@@ -503,15 +499,15 @@ module ByteBoozer2
     end
 
     def wlength(len)
-      # return if len == 0 # Should never happen
+      # return if len.zero? # Should never happen
 
       bit = 0x80
-      bit >>= 1 while len & bit == 0
+      bit >>= 1 while (len & bit).zero?
 
       while bit > 1
         wbit(1)
         bit >>= 1
-        wbit(len & bit == 0 ? 0 : 1)
+        wbit((len & bit).zero? ? 0 : 1)
       end
 
       wbit(0) if len < 0x80
@@ -558,29 +554,28 @@ module ByteBoozer2
       end
 
       # First write number of bits
-      wbit(i & 2 == 0 ? 0 : 1)
-      wbit(i & 1 == 0 ? 0 : 1)
+      wbit((i & 2).zero? ? 0 : 1)
+      wbit((i & 1).zero? ? 0 : 1)
 
+      b = 1 << n
       if n >= 8 # Offset is 2 bytes
 
         # Then write the bits less than 8
-        b = 1 << n
         while b > 0x100
           b >>= 1
-          wbit(b & offset == 0 ? 0 : 1)
+          wbit((b & offset).zero? ? 0 : 1)
         end
 
         # Finally write a whole byte, if necessary
         wbyte(offset & 255 ^ 255) # Inverted (!)
-        offset >>= 8
+        # offset >>= 8
 
       else # Offset is 1 byte
 
         # Then write the bits less than 8
-        b = 1 << n
         while b > 1
           b >>= 1
-          wbit(b & offset == 0 ? 1 : 0) # Inverted (!)
+          wbit((b & offset).zero? ? 1 : 0) # Inverted (!)
         end
       end
     end
@@ -604,11 +599,11 @@ module ByteBoozer2
         lit_len = @context[i].lit_len
         offset = @context[i].offset
 
-        if lit_len == 0
+        if lit_len.zero?
           # Put match
           len = link - i
 
-          ByteBoozer2.logger.debug format('$%04x: Mat(%i, %i)', i, len, offset)
+          ByteBoozer2.logger.debug format('$%<i>04x: Mat(%<len>i, %<offset>i)', i: i, len: len, offset: offset)
 
           wbit(1) if need_copy_bit
           wlength(len - 1)
@@ -624,7 +619,7 @@ module ByteBoozer2
           while lit_len > 0
             len = lit_len < 255 ? lit_len : 255
 
-            ByteBoozer2.logger.debug format('$%04x: Lit(%i)', i, len)
+            ByteBoozer2.logger.debug format('$%<i>04x: Lit(%<len>i)', i: i, len: len)
 
             wbit(0)
             wlength(len)
