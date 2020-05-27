@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_model'
 require 'ostruct'
 
@@ -260,7 +262,7 @@ module ByteBoozer2
         end
 
         cur = (cur << 8) & 0xffff # Table 65536 lookup
-        cur |= @ibuf[get - 1] if get > 0
+        cur |= @ibuf[get - 1] if get.positive?
         scn = @first[cur]
         scn = @link[scn]
 
@@ -268,7 +270,7 @@ module ByteBoozer2
 
         if @rle_info[get].length.zero? # No RLE-match here...
           # Scan until start of file, or max offset
-          while get - scn <= MAX_OFFSET && scn > 0 && longest_match < 255
+          while get - scn <= MAX_OFFSET && scn.positive? && longest_match < 255
             # OK, we have a match of length 2 or longer, but max 255 or file start
             len = 2
             len += 1 while len < 255 && scn >= len && @ibuf[scn - len] == @ibuf[get - len]
@@ -316,7 +318,7 @@ module ByteBoozer2
           end
 
           # Search for more RLE-matches, scan until start of file, or max offset...
-          while get - scn <= MAX_OFFSET && scn > 0 && longest_match < 255
+          while get - scn <= MAX_OFFSET && scn.positive? && longest_match < 255
 
             # Check for longer matches with same value and after...
             # FIXME: That is not what it does, is it?!
@@ -383,6 +385,7 @@ module ByteBoozer2
           offset = matches[i].offset
 
           next if len.zero?
+
           target_i = get - len + 1
           target = @context[target_i]
 
@@ -392,6 +395,7 @@ module ByteBoozer2
 
           # If this match is first or cheapest way to get here, then update node
           next if target.cost != 0 && target.cost <= current_cost
+
           target.cost = current_cost
           target.next = get + 1
           target.lit_len = 0
@@ -426,7 +430,7 @@ module ByteBoozer2
     def setup_help_structures
       # Setup RLE-info
       get = @ibuf_size - 1
-      while get > 0
+      while get.positive?
 
         cur = @ibuf[get]
         if cur == @ibuf[get - 1]
@@ -450,7 +454,7 @@ module ByteBoozer2
       get = @ibuf_size - 1
       cur = @ibuf[get]
 
-      while get > 0
+      while get.positive?
         cur = ((cur << 8) | @ibuf[get - 1]) & 0xffff
 
         if @first[cur].zero?
@@ -616,7 +620,7 @@ module ByteBoozer2
           # Put literal
           need_copy_bit = false
 
-          while lit_len > 0
+          while lit_len.positive?
             len = lit_len < 255 ? lit_len : 255
 
             ByteBoozer2.logger.debug format('$%<i>04x: Lit(%<len>i)', i: i, len: len)

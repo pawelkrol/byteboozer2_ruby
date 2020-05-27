@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ByteBoozer2
   # This class implements file handling related helper methods.
   class File

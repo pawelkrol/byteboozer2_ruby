@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'test_helper'
 
 describe ByteBoozer2::File do
@@ -9,13 +11,13 @@ describe ByteBoozer2::File do
     end
 
     it 'reads attribute value' do
-      @file.data.must_equal @data
+      expect(@file.data).must_equal @data
     end
 
     it 'writes attribute value' do
       @data = [0x00, 0x40, 0x4c, 0x00, 0x40]
       @file.data = @data
-      @file.data.must_equal @data
+      expect(@file.data).must_equal @data
     end
   end
 
@@ -26,13 +28,13 @@ describe ByteBoozer2::File do
     end
 
     it 'reads attribute value' do
-      @file.name.must_equal @name
+      expect(@file.name).must_equal @name
     end
 
     it 'writes attribute value' do
       @name = 'test/fixtures/small.prg.b2'
       @file.name = @name
-      @file.name.must_equal @name
+      expect(@file.name).must_equal @name
     end
   end
 
@@ -48,7 +50,7 @@ describe ByteBoozer2::File do
       end
 
       it 'reads data' do
-        @file.read.must_equal @data
+        expect(@file.read).must_equal @data
       end
     end
 
@@ -59,7 +61,7 @@ describe ByteBoozer2::File do
       end
 
       it 'raises Errno::ENOENT' do
-        proc { @file.read }.must_raise Errno::ENOENT
+        expect { @file.read }.must_raise Errno::ENOENT
       end
     end
   end
@@ -76,12 +78,12 @@ describe ByteBoozer2::File do
 
     it 'creates new file' do
       ByteBoozer2::File.save(@name, @data)
-      File.exist?(@name).must_equal true
+      expect(File.exist?(@name)).must_equal true
     end
 
     it 'writes data' do
       ByteBoozer2::File.save(@name, @data)
-      ByteBoozer2::File.load(@name).data.must_equal @data
+      expect(ByteBoozer2::File.load(@name).data).must_equal @data
     end
   end
 
@@ -99,12 +101,12 @@ describe ByteBoozer2::File do
 
       it 'creates new file' do
         @file.write
-        File.exist?(@name).must_equal true
+        expect(File.exist?(@name)).must_equal true
       end
 
       it 'writes data' do
         @file.write
-        ByteBoozer2::File.load(@name).data.must_equal @data
+        expect(ByteBoozer2::File.load(@name).data).must_equal @data
       end
     end
 
@@ -115,7 +117,7 @@ describe ByteBoozer2::File do
       end
 
       it 'does not overwrite existing file' do
-        proc { @file.write }.must_raise Errno::EEXIST
+        expect { @file.write }.must_raise Errno::EEXIST
       end
     end
   end

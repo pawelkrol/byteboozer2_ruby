@@ -1,4 +1,6 @@
-lib = File.expand_path('../lib', __FILE__)
+# frozen_string_literal: true
+
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'byteboozer2/version'
 
@@ -19,11 +21,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_development_dependency 'awesome_print', '~> 1.8.0'
-  spec.add_development_dependency 'bundler',       '~> 1.16.0'
-  spec.add_development_dependency 'json',          '~> 2.1.0'
-  spec.add_development_dependency 'minitest',      '~> 5.10.3'
+  spec.add_development_dependency 'bundler',       '~> 2.1.4'
+  spec.add_development_dependency 'json',          '~> 2.3.0'
+  spec.add_development_dependency 'minitest',      '~> 5.14.1'
   spec.add_development_dependency 'rake',          '~> 13.0.1'
-  spec.add_development_dependency 'rubocop',       '~> 0.52.0'
+  spec.add_development_dependency 'rubocop',       '~> 0.84.0'
 
-  spec.add_runtime_dependency 'activemodel', '~> 5.1.4'
+  spec.add_runtime_dependency 'activemodel', '~> 6.0.3.1'
 end

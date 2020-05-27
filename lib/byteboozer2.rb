@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'byteboozer2/cruncher'
 require 'byteboozer2/file'
 require 'byteboozer2/version'

@@ -1,3 +1,13 @@
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: true
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+Lint/DeprecatedOpenSSLConstant:
+  Enabled: true
+Lint/RaiseException:
+  Enabled: true
+Lint/StructNewOverride:
+  Enabled: true
 Metrics/AbcSize:
   Max: 174.1
 Metrics/BlockLength:
@@ -14,5 +24,19 @@ Metrics/MethodLength:
   Max: 116
 Metrics/PerceivedComplexity:
   Max: 48
+Naming/MethodParameterName:
+  AllowedNames:
+    - b
+    - o
+Style/ExponentialNotation:
+  Enabled: true
+Style/HashEachMethods:
+  Enabled: true
+Style/HashTransformKeys:
+  Enabled: true
+Style/HashTransformValues:
+  Enabled: true
+Style/SlicingWithRange:
+  Enabled: true
 Style/ZeroLengthPredicate:
-  Enabled: false
+  Enabled: true

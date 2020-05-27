@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'test_helper'
 
 describe ByteBoozer2::Cruncher do
@@ -13,23 +15,23 @@ describe ByteBoozer2::Cruncher do
 
       describe '#crunch!' do
         it 'returns true upon success' do
-          @cruncher.crunch!.must_equal true
+          expect(@cruncher.crunch!).must_equal true
         end
 
         it 'crunches data' do
           @cruncher.crunch!
-          @cruncher.result.must_equal @expected
+          expect(@cruncher.result).must_equal @expected
         end
       end
 
       describe '#crunch' do
         it 'crunches data' do
-          @cruncher.crunch.must_equal @expected
+          expect(@cruncher.crunch).must_equal @expected
         end
 
         it 'memoizes result' do
           @cruncher.crunch
-          @cruncher.result.must_equal @expected
+          expect(@cruncher.result).must_equal @expected
         end
       end
     end
@@ -37,7 +39,7 @@ describe ByteBoozer2::Cruncher do
     describe 'when called as a class method' do
       describe '.crunch' do
         it 'returns crunched data upon success' do
-          ByteBoozer2::Cruncher.crunch(@data).must_equal @expected
+          expect(ByteBoozer2::Cruncher.crunch(@data)).must_equal @expected
         end
       end
     end
@@ -51,7 +53,7 @@ describe ByteBoozer2::Cruncher do
 
     describe '#crunch' do
       it 'crunches data' do
-        @cruncher.crunch.must_equal @expected
+        expect(@cruncher.crunch).must_equal @expected
       end
     end
   end
@@ -64,7 +66,7 @@ describe ByteBoozer2::Cruncher do
 
     describe '#crunch' do
       it 'crunches data' do
-        @cruncher.crunch.must_equal @expected
+        expect(@cruncher.crunch).must_equal @expected
       end
     end
   end

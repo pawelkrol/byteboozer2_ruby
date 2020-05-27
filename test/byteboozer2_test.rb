@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'test_helper'
 
 describe ByteBoozer2 do
@@ -22,7 +24,7 @@ describe ByteBoozer2 do
       crunch(@source)
       @data[0] = 0xfe
       @data[1] = 0x0f
-      ByteBoozer2::File.load(@target).data.must_equal @data
+      expect(ByteBoozer2::File.load(@target).data).must_equal @data
     end
   end
 
@@ -47,15 +49,15 @@ describe ByteBoozer2 do
         @data[0x88] = 0x10
         @data[0xcc] = 0x00
         @data[0xcd] = 0x10
-        ByteBoozer2::File.load(@target).data.must_equal @data
+        expect(ByteBoozer2::File.load(@target).data).must_equal @data
       end
     end
 
     describe 'with invalid start address' do
       it 'raises ArgumentError' do
-        proc { ecrunch(@source, 'test') }.must_raise ArgumentError
-        proc { ecrunch(@source, -1) }.must_raise ArgumentError
-        proc { ecrunch(@source, 0x10000) }.must_raise ArgumentError
+        expect { ecrunch(@source, 'test') }.must_raise ArgumentError
+        expect { ecrunch(@source, -1) }.must_raise ArgumentError
+        expect { ecrunch(@source, 0x10000) }.must_raise ArgumentError
       end
     end
   end
@@ -73,7 +75,7 @@ describe ByteBoozer2 do
       rcrunch(@source, @address)
       @data[0] = 0xfa
       @data[1] = 0x3f
-      ByteBoozer2::File.load(@target).data.must_equal @data
+      expect(ByteBoozer2::File.load(@target).data).must_equal @data
     end
   end
 end

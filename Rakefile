@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bundler/gem_tasks'
 require 'rake/testtask'
 
@@ -8,7 +10,7 @@ Rake::TestTask.new(:test) do |t|
 end
 
 require 'rubygems/package_task'
-spec = Gem::Specification.load(File.expand_path('../byteboozer2.gemspec', __FILE__))
+spec = Gem::Specification.load(File.expand_path('byteboozer2.gemspec', __dir__))
 Gem::PackageTask.new(spec).define
 
 require 'rubocop/rake_task'
