@@ -1,3 +1,5 @@
+AllCops:
+  TargetRubyVersion: 3.0.1
 Layout/EmptyLinesAroundAttributeAccessor:
   Enabled: true
 Layout/SpaceAroundMethodCallOperator:
@@ -9,7 +11,7 @@ Lint/RaiseException:
 Lint/StructNewOverride:
   Enabled: true
 Metrics/AbcSize:
-  Max: 174.1
+  Max: 178
 Metrics/BlockLength:
   Max: 98
 Metrics/BlockNesting:
@@ -17,17 +19,19 @@ Metrics/BlockNesting:
 Metrics/ClassLength:
   Max: 472
 Metrics/CyclomaticComplexity:
-  Max: 46
+  Max: 48
 Metrics/LineLength:
   Max: 120
 Metrics/MethodLength:
   Max: 116
 Metrics/PerceivedComplexity:
-  Max: 48
+  Max: 50
 Naming/MethodParameterName:
   AllowedNames:
     - b
     - o
+Naming/VariableNumber:
+  EnforcedStyle: snake_case
 Style/ExponentialNotation:
   Enabled: true
 Style/HashEachMethods:

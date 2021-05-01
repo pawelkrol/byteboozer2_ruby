@@ -32,7 +32,7 @@ module ByteBoozer2
       @ibuf_size = @data.length - 2
 
       # Load ibuf and clear context
-      @ibuf     = @data[2..-1]
+      @ibuf     = @data[2..]
       @context  = Array.new(@ibuf_size) { new_node }
       @link     = Array.new(@ibuf_size) { 0 }
       @rle_info = Array.new(@ibuf_size) { OpenStruct.new(value: 0, value_after: 0, length: 0) }

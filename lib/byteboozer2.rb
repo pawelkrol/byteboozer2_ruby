@@ -35,6 +35,6 @@ module ByteBoozer2
   def compress(file_name, *options)
     file = ByteBoozer2::File.load(file_name)
     result = ByteBoozer2::Cruncher.crunch(file.data, *options)
-    ByteBoozer2::File.save(file_name + '.b2', result)
+    ByteBoozer2::File.save(format('%s.b2', file_name), result)
   end
 end

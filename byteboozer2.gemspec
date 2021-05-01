@@ -20,12 +20,14 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_development_dependency 'awesome_print', '~> 1.8.0'
-  spec.add_development_dependency 'bundler',       '~> 2.1.4'
-  spec.add_development_dependency 'json',          '~> 2.3.0'
-  spec.add_development_dependency 'minitest',      '~> 5.14.1'
-  spec.add_development_dependency 'rake',          '~> 13.0.1'
-  spec.add_development_dependency 'rubocop',       '~> 0.84.0'
+  spec.required_ruby_version = '>= 3.0.1'
 
-  spec.add_runtime_dependency 'activemodel', '~> 6.0.3.1'
+  spec.add_development_dependency 'awesome_print', '~> 1.9.2'
+  spec.add_development_dependency 'bundler',       '~> 2.2.16'
+  spec.add_development_dependency 'json',          '~> 2.5.1'
+  spec.add_development_dependency 'minitest',      '~> 5.14.4'
+  spec.add_development_dependency 'rake',          '~> 13.0.3'
+  spec.add_development_dependency 'rubocop',       '~> 1.13.0'
+
+  spec.add_runtime_dependency 'activemodel', '~> 6.1.3.1'
 end

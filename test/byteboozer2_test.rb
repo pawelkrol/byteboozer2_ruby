@@ -7,7 +7,7 @@ describe ByteBoozer2 do
 
   before :each do
     @source = 'test/fixtures/small.prg'
-    @target = @source + '.b2'
+    @target = format('%s.b2', @source)
     @data = [0x00, 0x00, 0x00, 0x10, 0x3f, 0x60, 0xff, 0x80]
   end
 
@@ -40,7 +40,7 @@ describe ByteBoozer2 do
 
       it 'crunches file and makes executable with given start address' do
         ecrunch(@source, @address)
-        @data = [0x01, 0x08] + ByteBoozer2::Cruncher::DECRUNCHER.dup + @data[4..-1]
+        @data = [0x01, 0x08] + ByteBoozer2::Cruncher::DECRUNCHER.dup + @data[4..]
         @data[0x21] = 0xda
         @data[0x22] = 0x07
         @data[0xbe] = 0xfc
