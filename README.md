@@ -6,7 +6,7 @@
 
 ## Version
 
-Version 0.0.4 (2021-05-01)
+Version 0.0.5 (2026-08-15)
 
 ## Description
 
@@ -19,7 +19,7 @@ Compressed data is by default written into a file named with `.b2` suffix. Targe
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'byteboozer2', '~> 0.0.4'
+gem 'byteboozer2', '~> 0.0.5'
 ```
 
 And then execute:

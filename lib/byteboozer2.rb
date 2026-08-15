@@ -12,7 +12,7 @@ module ByteBoozer2
   end
 
   def ecrunch(file_name, address)
-    compress(file_name, address: address, executable: true)
+    compress(file_name, address:, executable: true)
   end
 
   def self.logger
@@ -27,7 +27,7 @@ module ByteBoozer2
   end
 
   def rcrunch(file_name, address)
-    compress(file_name, address: address, relocated: true)
+    compress(file_name, address:, relocated: true)
   end
 
   private

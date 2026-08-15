@@ -13,13 +13,13 @@ describe ByteBoozer2::Cruncher do
         @cruncher = ByteBoozer2::Cruncher.new(@data)
       end
 
-      describe '#crunch!' do
+      describe '#crunched?' do
         it 'returns true upon success' do
-          expect(@cruncher.crunch!).must_equal true
+          expect(@cruncher.crunched?).must_equal true
         end
 
         it 'crunches data' do
-          @cruncher.crunch!
+          @cruncher.crunched?
           expect(@cruncher.result).must_equal @expected
         end
       end

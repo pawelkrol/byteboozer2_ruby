@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'active_model'
-require 'ostruct'
+require 'cgi/escape'
 
 module ByteBoozer2
   # This class implements ByteBoozer's 2.0 crunching algorithm.
@@ -15,8 +15,12 @@ module ByteBoozer2
                                         greater_than_or_equal_to: 0x0000,
                                         less_than_or_equal_to: 0xffff
 
-    def self.crunch(*args)
-      new(*args).crunch
+    RleInfo = Struct.new(:value, :value_after, :length, keyword_init: true) # rubocop:disable Lint/StructNewOverride
+    Matches = Struct.new(:length, :offset, keyword_init: true) # rubocop:disable Lint/StructNewOverride
+    NewNode = Struct.new(:cost, :next, :lit_len, :offset, keyword_init: true)
+
+    def self.crunch(*)
+      new(*).crunch
     end
 
     def initialize(data, options = {})
@@ -28,14 +32,14 @@ module ByteBoozer2
       raise ArgumentError unless valid?
     end
 
-    def crunch!
+    def crunched?
       @ibuf_size = @data.length - 2
 
       # Load ibuf and clear context
       @ibuf     = @data[2..]
       @context  = Array.new(@ibuf_size) { new_node }
       @link     = Array.new(@ibuf_size) { 0 }
-      @rle_info = Array.new(@ibuf_size) { OpenStruct.new(value: 0, value_after: 0, length: 0) }
+      @rle_info = Array.new(@ibuf_size) { RleInfo.new(value: 0, value_after: 0, length: 0) }
 
       setup_help_structures
       find_matches
@@ -93,10 +97,8 @@ module ByteBoozer2
     end
 
     def crunch
-      @result if crunch!
+      @result if crunched?
     end
-
-    private
 
     DECRUNCHER = [
       0x0b, 0x08, 0x00, 0x00, 0x9e, 0x32, 0x30, 0x36, 0x31, 0x00, 0x00, 0x00, 0x78, 0xa9, 0x34, 0x85,
@@ -139,22 +141,24 @@ module ByteBoozer2
     MAX_OFFSET = LEN_LONG_3
     MAX_OFFSET_SHORT = LEN_SHORT_3
 
+    private
+
     def cost_of_length(len)
       if len == 1
         1
-      elsif len >= 2 && len <= 3
+      elsif len.between?(2, 3)
         3
-      elsif len >= 4 && len <= 7
+      elsif len.between?(4, 7)
         5
-      elsif len >= 8 && len <= 15
+      elsif len.between?(8, 15)
         7
-      elsif len >= 16 && len <= 31
+      elsif len.between?(16, 31)
         9
-      elsif len >= 32 && len <= 63
+      elsif len.between?(32, 63)
         11
-      elsif len >= 64 && len <= 127
+      elsif len.between?(64, 127)
         13
-      elsif len >= 128 && len <= 255
+      elsif len.between?(128, 255)
         14
       else
         ByteBoozer2.logger.warn "cost_of_length got wrong value: #{len}"
@@ -189,50 +193,50 @@ module ByteBoozer2
 
     def cost_of_offset(offset, len)
       if len == 1
-        return NUM_BITS_SHORT_0 if cond_short_0(offset)
-        return NUM_BITS_SHORT_1 if cond_short_1(offset)
-        return NUM_BITS_SHORT_2 if cond_short_2(offset)
-        return NUM_BITS_SHORT_3 if cond_short_3(offset)
+        return NUM_BITS_SHORT_0 if cond_short_0?(offset)
+        return NUM_BITS_SHORT_1 if cond_short_1?(offset)
+        return NUM_BITS_SHORT_2 if cond_short_2?(offset)
+        return NUM_BITS_SHORT_3 if cond_short_3?(offset)
       else
-        return NUM_BITS_LONG_0 if cond_long_0(offset)
-        return NUM_BITS_LONG_1 if cond_long_1(offset)
-        return NUM_BITS_LONG_2 if cond_long_2(offset)
-        return NUM_BITS_LONG_3 if cond_long_3(offset)
+        return NUM_BITS_LONG_0 if cond_long_0?(offset)
+        return NUM_BITS_LONG_1 if cond_long_1?(offset)
+        return NUM_BITS_LONG_2 if cond_long_2?(offset)
+        return NUM_BITS_LONG_3 if cond_long_3?(offset)
       end
 
       ByteBoozer2.logger.warn "cost_of_offset got wrong offset: #{offset}"
       10_000
     end
 
-    def cond_short_0(o)
+    def cond_short_0?(o)
       o >= 0 && o < LEN_SHORT_0
     end
 
-    def cond_short_1(o)
+    def cond_short_1?(o)
       o >= LEN_SHORT_0 && o < LEN_SHORT_1
     end
 
-    def cond_short_2(o)
+    def cond_short_2?(o)
       o >= LEN_SHORT_1 && o < LEN_SHORT_2
     end
 
-    def cond_short_3(o)
+    def cond_short_3?(o)
       o >= LEN_SHORT_2 && o < LEN_SHORT_3
     end
 
-    def cond_long_0(o)
+    def cond_long_0?(o)
       o >= 0 && o < LEN_LONG_0
     end
 
-    def cond_long_1(o)
+    def cond_long_1?(o)
       o >= LEN_LONG_0 && o < LEN_LONG_1
     end
 
-    def cond_long_2(o)
+    def cond_long_2?(o)
       o >= LEN_LONG_1 && o < LEN_LONG_2
     end
 
-    def cond_long_3(o)
+    def cond_long_3?(o)
       o >= LEN_LONG_2 && o < LEN_LONG_3
     end
 
@@ -241,7 +245,7 @@ module ByteBoozer2
     end
 
     def find_matches
-      matches = Array.new(256) { OpenStruct.new(length: 0, offset: 0) }
+      matches = Array.new(256) { Matches.new(length: 0, offset: 0) }
 
       last_node = new_node
 
@@ -262,7 +266,8 @@ module ByteBoozer2
 
         longest_match = 0
 
-        if @rle_info[get].length.zero? # No RLE-match here...
+        # No RLE-match here...
+        if @rle_info[get].length.zero? # rubocop:disable Style/ZeroLengthPredicate
           # Scan until start of file, or max offset
           while get - scn <= MAX_OFFSET && scn.positive? && longest_match < 255
             # OK, we have a match of length 2 or longer, but max 255 or file start
@@ -277,7 +282,7 @@ module ByteBoozer2
               longest_match = len
 
               # Store the match only if first (= best) of this length
-              while len >= 2 && matches[len].length.zero?
+              while len >= 2 && matches[len].length.zero? # rubocop:disable Style/ZeroLengthPredicate
                 # If len == 2, check against short offset!
                 if len > 2 || (len == 2 && offset <= MAX_OFFSET_SHORT)
                   matches[len].length = len
@@ -345,7 +350,7 @@ module ByteBoozer2
                   longest_match = len
 
                   # Store the match only if first (= best) of this length
-                  while len >= 2 && matches[len].length.zero?
+                  while len >= 2 && matches[len].length.zero? # rubocop:disable Style/ZeroLengthPredicate
                     # If len == 2, check against short offset!
                     if len > 2 || (len == 2 && offset <= MAX_OFFSET_SHORT)
                       matches[len].length = len
@@ -418,7 +423,7 @@ module ByteBoozer2
     end
 
     def new_node
-      OpenStruct.new(cost: 0, next: 0, lit_len: 0, offset: 0)
+      NewNode.new(cost: 0, next: 0, lit_len: 0, offset: 0)
     end
 
     def setup_help_structures
@@ -458,7 +463,8 @@ module ByteBoozer2
           @last[cur] = get
         end
 
-        get -= @rle_info[get].length.zero? ? 1 : @rle_info[get].length - 1 # if RLE-match...
+        # If RLE-match...
+        get -= @rle_info[get].length.zero? ? 1 : @rle_info[get].length - 1 # rubocop:disable Style/ZeroLengthPredicate
       end
     end
 
@@ -482,7 +488,7 @@ module ByteBoozer2
     end
 
     def wbytes(get, len)
-      (0..len - 1).each do
+      (0..(len - 1)).each do
         wbyte(@ibuf[get])
         get += 1
       end
@@ -500,12 +506,12 @@ module ByteBoozer2
       # return if len.zero? # Should never happen
 
       bit = 0x80
-      bit >>= 1 while (len & bit).zero?
+      bit >>= 1 while len.nobits?(bit)
 
       while bit > 1
         wbit(1)
         bit >>= 1
-        wbit((len & bit).zero? ? 0 : 1)
+        wbit(len.nobits?(bit) ? 0 : 1)
       end
 
       wbit(0) if len < 0x80
@@ -516,44 +522,44 @@ module ByteBoozer2
       n = 0
 
       if len == 1
-        if cond_short_0(offset)
+        if cond_short_0?(offset)
           i = 0
           n = NUM_BITS_SHORT_0
         end
-        if cond_short_1(offset)
+        if cond_short_1?(offset)
           i = 1
           n = NUM_BITS_SHORT_1
         end
-        if cond_short_2(offset)
+        if cond_short_2?(offset)
           i = 2
           n = NUM_BITS_SHORT_2
         end
-        if cond_short_3(offset)
+        if cond_short_3?(offset)
           i = 3
           n = NUM_BITS_SHORT_3
         end
       else
-        if cond_long_0(offset)
+        if cond_long_0?(offset)
           i = 0
           n = NUM_BITS_LONG_0
         end
-        if cond_long_1(offset)
+        if cond_long_1?(offset)
           i = 1
           n = NUM_BITS_LONG_1
         end
-        if cond_long_2(offset)
+        if cond_long_2?(offset)
           i = 2
           n = NUM_BITS_LONG_2
         end
-        if cond_long_3(offset)
+        if cond_long_3?(offset)
           i = 3
           n = NUM_BITS_LONG_3
         end
       end
 
       # First write number of bits
-      wbit((i & 2).zero? ? 0 : 1)
-      wbit((i & 1).zero? ? 0 : 1)
+      wbit(i.nobits?(2) ? 0 : 1)
+      wbit(i.nobits?(1) ? 0 : 1)
 
       b = 1 << n
       if n >= 8 # Offset is 2 bytes
@@ -561,11 +567,11 @@ module ByteBoozer2
         # Then write the bits less than 8
         while b > 0x100
           b >>= 1
-          wbit((b & offset).zero? ? 0 : 1)
+          wbit(b.nobits?(offset) ? 0 : 1)
         end
 
         # Finally write a whole byte, if necessary
-        wbyte(offset & 255 ^ 255) # Inverted (!)
+        wbyte((offset & 255) ^ 255) # Inverted (!)
         # offset >>= 8
 
       else # Offset is 1 byte
@@ -573,7 +579,7 @@ module ByteBoozer2
         # Then write the bits less than 8
         while b > 1
           b >>= 1
-          wbit((b & offset).zero? ? 1 : 0) # Inverted (!)
+          wbit(b.nobits?(offset) ? 1 : 0) # Inverted (!)
         end
       end
     end
@@ -601,7 +607,7 @@ module ByteBoozer2
           # Put match
           len = link - i
 
-          ByteBoozer2.logger.debug format('$%<i>04x: Mat(%<len>i, %<offset>i)', i: i, len: len, offset: offset)
+          ByteBoozer2.logger.debug format('$%<i>04x: Mat(%<len>i, %<offset>i)', i:, len:, offset:)
 
           wbit(1) if need_copy_bit
           wlength(len - 1)
@@ -615,9 +621,9 @@ module ByteBoozer2
           need_copy_bit = false
 
           while lit_len.positive?
-            len = lit_len < 255 ? lit_len : 255
+            len = [lit_len, 255].min
 
-            ByteBoozer2.logger.debug format('$%<i>04x: Lit(%<len>i)', i: i, len: len)
+            ByteBoozer2.logger.debug format('$%<i>04x: Lit(%<len>i)', i:, len:)
 
             wbit(0)
             wlength(len)

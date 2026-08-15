@@ -13,5 +13,5 @@ def test_data(fixture_name)
 end
 
 def file_read(file_name)
-  IO.binread(file_name).unpack('C*')
+  File.binread(file_name).unpack('C*')
 end

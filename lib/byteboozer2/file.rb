@@ -5,12 +5,12 @@ module ByteBoozer2
   class File
     attr_accessor :data, :name
 
-    def self.load(*args)
-      new(*args).tap(&:read)
+    def self.load(*)
+      new(*).tap(&:read)
     end
 
-    def self.save(*args)
-      new(*args).tap(&:write)
+    def self.save(*)
+      new(*).tap(&:write)
     end
 
     def initialize(name, data = nil)
@@ -19,7 +19,7 @@ module ByteBoozer2
     end
 
     def read
-      @data = IO.binread(@name).unpack('C*')
+      @data = ::File.binread(@name).unpack('C*')
     end
 
     def write

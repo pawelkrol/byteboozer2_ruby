@@ -1,9 +1,11 @@
 AllCops:
   NewCops: enable
   SuggestExtensions: false
-  TargetRubyVersion: 3.0.1
+  TargetRubyVersion: 4.0.6
 Layout/EmptyLinesAroundAttributeAccessor:
   Enabled: true
+Layout/LineLength:
+  Max: 120
 Layout/SpaceAroundMethodCallOperator:
   Enabled: true
 Lint/DeprecatedOpenSSLConstant:
@@ -22,8 +24,6 @@ Metrics/ClassLength:
   Max: 472
 Metrics/CyclomaticComplexity:
   Max: 48
-Metrics/LineLength:
-  Max: 120
 Metrics/MethodLength:
   Max: 116
 Metrics/PerceivedComplexity:
