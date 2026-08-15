@@ -172,14 +172,8 @@ module ByteBoozer2
       # literal run, which in the end results in a worse result
       # Most obvious on files hard to crunch
       case lit_len
-      when 1 then new_cost += 1
-      when 128 then new_cost += 1
-      when 2 then new_cost += 2
-      when 4 then new_cost += 2
-      when 8 then new_cost += 2
-      when 16 then new_cost += 2
-      when 32 then new_cost += 2
-      when 64 then new_cost += 2
+      when 1, 128 then new_cost += 1
+      when 2, 4, 8, 16, 32, 64 then new_cost += 2
       end
 
       new_cost
